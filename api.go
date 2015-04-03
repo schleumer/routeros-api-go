@@ -69,6 +69,9 @@ type Pair struct {
 	Op string
 }
 
+type IteratorItem []map[string]string
+type PairIterator func(item IteratorItem, err error)
+
 type Query struct {
 	Pairs    []Pair
 	Op       string
@@ -186,6 +189,46 @@ func (c *Client) Query(command string, q Query) (Reply, error) {
 	}
 
 	return res, nil
+}
+
+func (c *Client) KeepAliveCall(command string, q Query, iterator PairIterator) error {
+	err := c.send(command)
+	if err != nil {
+		return err
+	}
+
+	// Set property list if present
+	if len(q.Proplist) > 0 {
+		proplist := fmt.Sprintf("=.proplist=%s", strings.Join(q.Proplist, ","))
+		err = c.send(proplist)
+		if err != nil {
+			return err
+		}
+	}
+
+	// send params if we got them
+	if len(q.Pairs) > 0 {
+		for _, v := range q.Pairs {
+			word := fmt.Sprintf("%s%s=%s", v.Op, v.Key, v.Value)
+			c.send(word)
+		}
+	}
+
+	// send terminator
+	err = c.send("")
+	if err != nil {
+		return err
+	}
+
+	err = c.asyncReceive(func(reply Reply, err error) {
+		iterator(reply.SubPairs, err)
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *Client) Call(command string, params []Pair) (Reply, error) {

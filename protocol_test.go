@@ -3,6 +3,7 @@ package routeros
 import (
 	"os"
 	"testing"
+	"fmt"
 )
 
 type TestVars struct {
@@ -44,9 +45,10 @@ func PrepVars(t *testing.T) TestVars {
 // Test logging in and out
 func TestLogin(t *testing.T) {
 	tv := PrepVars(t)
+
 	c, err := New(tv.Address)
 	if err != nil {
-		t.Error(nil)
+		t.Error(err)
 	}
 
 	err = c.Connect(tv.Username, tv.Password)
@@ -133,4 +135,33 @@ func TestQueryMultiple(t *testing.T) {
 		t.Error("Did not get multiple SubPairs from interface query")
 	}
 	//t.Log(res)
+}
+
+func TestKeepAliveCall(t *testing.T) {
+	tv := PrepVars(t)
+	c, err := New(tv.Address)
+	if err != nil {
+		t.Error(nil)
+	}
+
+	err = c.Connect(tv.Username, tv.Password)
+	if err != nil {
+		t.Error(err)
+	}
+
+	var q Query
+
+	// q.Pairs = append(q.Pairs, Pair{ Key: "address", Value: "google.com", Op: "=" })
+	// q.Pairs = append(q.Pairs, Pair{ Key: "count", Value: "2", Op: "=" })
+
+	q.Pairs = append(q.Pairs, Pair{Key: "interface", Value: "bridge-local", Op: "="})
+
+	q.Pairs = append(q.Pairs, Pair{ Key: "src-address", Value: "0.0.0.0/0", Op: "=" })
+	q.Pairs = append(q.Pairs, Pair{Key: "dst-address", Value: "0.0.0.0/0", Op: "="})
+	q.Pairs = append(q.Pairs, Pair{ Key: "src-address6", Value: "::/0", Op: "=" })
+	q.Pairs = append(q.Pairs, Pair{Key: "dst-address6", Value: "::/0", Op: "="})
+
+	c.KeepAliveCall("/tool/torch", q, func(line IteratorItem, err error){
+		fmt.Printf("%s\n", line)
+	})
 }
