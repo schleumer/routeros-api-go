@@ -53,7 +53,7 @@ func (client *Client) getlen() int64 {
 
 // Calculate RouterOS API Word Size Prefix
 // TODO: based on MT Docs. Look for way to make this cleaner later
-func prefixlen(l int) bytes.Buffer {
+func prefixlen(l uint64) bytes.Buffer {
 	var b bytes.Buffer
 
 	if l < 0x80 {
