@@ -10,7 +10,7 @@ import (
 // Encode and send a single line
 func (c *Client) send(word string) error {
 	bword := []byte(word)
-	prefix := prefixlen(len(bword))
+	prefix := prefixlen(int64(len(bword)))
 
 	_, err := c.conn.Write(prefix.Bytes())
 	if err != nil {

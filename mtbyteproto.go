@@ -53,32 +53,32 @@ func (client *Client) getlen() int64 {
 
 // Calculate RouterOS API Word Size Prefix
 // TODO: based on MT Docs. Look for way to make this cleaner later
-func prefixlen(l uint64) bytes.Buffer {
+func prefixlen(l int64) bytes.Buffer {
 	var b bytes.Buffer
 
 	if l < 0x80 {
 		b.Write([]byte(string(l)))
 	} else if l < 0x4000 {
 		l |= 0x8000
-		b.Write([]byte(strconv.Itoa((l >> 8) & 0xFF)))
-		b.Write([]byte(strconv.Itoa(l & 0xFF)))
+		b.Write([]byte(strconv.FormatInt((l >> 8) & 0xFF, 10)))
+		b.Write([]byte(strconv.FormatInt(l & 0xFF, 10)))
 	} else if l < 0x200000 {
 		l |= 0xC00000
-		b.Write([]byte(strconv.Itoa((l >> 16) & 0xFF)))
-		b.Write([]byte(strconv.Itoa((l >> 8) & 0xFF)))
-		b.Write([]byte(strconv.Itoa(l & 0xFF)))
+		b.Write([]byte(strconv.FormatInt((l >> 16) & 0xFF, 10)))
+		b.Write([]byte(strconv.FormatInt((l >> 8) & 0xFF, 10)))
+		b.Write([]byte(strconv.FormatInt(l & 0xFF, 10)))
 	} else if l < 0x10000000 {
 		l |= 0xE0000000
-		b.Write([]byte(strconv.Itoa((l >> 24) & 0xFF)))
-		b.Write([]byte(strconv.Itoa((l >> 16) & 0xFF)))
-		b.Write([]byte(strconv.Itoa((l >> 8) & 0xFF)))
-		b.Write([]byte(strconv.Itoa(l & 0xFF)))
+		b.Write([]byte(strconv.FormatInt((l >> 24) & 0xFF, 10)))
+		b.Write([]byte(strconv.FormatInt((l >> 16) & 0xFF, 10)))
+		b.Write([]byte(strconv.FormatInt((l >> 8) & 0xFF, 10)))
+		b.Write([]byte(strconv.FormatInt(l & 0xFF, 10)))
 	} else {
-		b.Write([]byte(strconv.Itoa(0xF0)))
-		b.Write([]byte(strconv.Itoa((l >> 24) & 0xFF)))
-		b.Write([]byte(strconv.Itoa((l >> 16) & 0xFF)))
-		b.Write([]byte(strconv.Itoa((l >> 8) & 0xFF)))
-		b.Write([]byte(strconv.Itoa(l & 0xFF)))
+		b.Write([]byte(strconv.FormatInt(0xF0, 10)))
+		b.Write([]byte(strconv.FormatInt((l >> 24) & 0xFF, 10)))
+		b.Write([]byte(strconv.FormatInt((l >> 16) & 0xFF, 10)))
+		b.Write([]byte(strconv.FormatInt((l >> 8) & 0xFF, 10)))
+		b.Write([]byte(strconv.FormatInt(l & 0xFF, 10)))
 	}
 
 	return b
